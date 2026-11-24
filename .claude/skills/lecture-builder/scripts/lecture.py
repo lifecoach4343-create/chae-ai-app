@@ -41,18 +41,18 @@ def load(path):
     book.setdefault('num', lessons[-1]['num'] if lessons else '01')
     book.setdefault('title', c['title'].split('\n')[0][:10])
     book.setdefault('bottom', 'LECTURE WORKBOOK')
+    pp = c.setdefault('prompt_page', {})
+    pp.setdefault('title', '실습 프롬프트'); pp.setdefault('kicker', 'PRACTICE LIBRARY')
+    pp.setdefault('desc', '프롬프트를 하나씩 복사해 실습에 활용하세요.')
     if 'facts' not in c:
         n_main = sum(1 for l in lessons if not l.get('orientation'))
         n_prompt = sum(len(l['prompts']) for l in lessons)
         n_slide = sum(len(l['slides']) for l in lessons)
         mins = sorted({l['minutes'] for l in lessons if not l.get('orientation')}) or [lessons[0]['minutes']]
         c['facts'] = [[f'{n_main:02d}', '실습 강의'],
-                      [f'{mins[-1]}분', '강의당 시간'],
+                      [f'{mins[-1]}분', '차시당 시간' if mins[-1] <= 60 else '강의당 시간'],
                       [f'{n_slide:02d}', '슬라이드'],
-                      [f'{n_prompt:02d}', '실습 프롬프트'] if n_prompt else [f"{sum(len(l['scenario']) for l in lessons):02d}", '진행 단계']]
-    pp = c.setdefault('prompt_page', {})
-    pp.setdefault('title', '실습 프롬프트'); pp.setdefault('kicker', 'PRACTICE LIBRARY')
-    pp.setdefault('desc', '프롬프트를 하나씩 복사해 실습에 활용하세요.')
+                      [f'{n_prompt:02d}', pp['title']] if n_prompt else [f"{sum(len(l['scenario']) for l in lessons):02d}", '진행 단계']]
     d.setdefault('slug', 'lecture')
     d['doc_name'] = _slug(c['title'].replace('\n', ' '))
     return d
